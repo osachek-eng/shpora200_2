@@ -4,201 +4,295 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Тренажёр формул ЕГЭ по физике</title>
-
+<title>Тренажёр формул ЕГЭ</title>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: #fafafa;
-    margin: 0;
-    padding: 40px;
-    color: #111;
+body{
+font-family:Arial,sans-serif;
+background:#fafafa;
+margin:0;
+padding:20px;
+color:#111;
 }
-
-.container {
-    max-width: 900px;
-    margin: auto;
+.container{
+max-width:900px;
+margin:auto;
 }
-
-.card {
-    background: white;
-    border-radius: 18px;
-    padding: 30px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+.card{
+background:white;
+padding:25px;
+border-radius:18px;
+box-shadow:0 4px 15px rgba(0,0,0,.08);
+margin-bottom:20px;
 }
-
-h1 {
-    font-size: 32px;
+button{
+padding:12px 18px;
+border:none;
+border-radius:12px;
+background:black;
+color:white;
+cursor:pointer;
+margin:6px;
 }
-
-.formula {
-    font-size: 28px;
-    margin: 30px 0;
+input{
+width:100%;
+padding:14px;
+border:1px solid #ddd;
+border-radius:12px;
+margin:10px 0;
 }
-
-input {
-    width: 100%;
-    padding: 16px;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    font-size: 16px;
+.mode{
+display:inline-block;
 }
-
-button {
-    margin-top: 16px;
-    padding: 14px 20px;
-    border: none;
-    border-radius: 12px;
-    background: black;
-    color: white;
-    cursor: pointer;
-    font-size: 16px;
-    margin-right: 10px;
+.token{
+display:inline-block;
+padding:10px 14px;
+margin:6px;
+background:#eee;
+border-radius:10px;
+cursor:pointer;
 }
-
-.result {
-    margin-top: 20px;
-    font-weight: bold;
+.selected{
+background:#111;
+color:white;
 }
-
-.stats {
-    margin-top: 30px;
-    color: #666;
+.hidden{
+display:none;
+}
+.stats{
+font-size:14px;
+color:#666;
+}
+@media(max-width:600px){
+button{width:100%}
 }
 </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="card">
-        <h1>Тренажёр формул ЕГЭ по физике</h1>
-        <p>Раздел: Кинематика</p>
 
-        <div class="formula" id="formula"></div>
+<div class="card">
+<h1>Тренажёр ЕГЭ по физике</h1>
 
-        <input id="answer" placeholder="Введите название формулы">
+<button onclick="setMode('name')">Формула → Название</button>
+<button onclick="setMode('build')">Собери формулу</button>
+<button onclick="setMode('missing')">Допиши</button>
+<button onclick="setMode('exam')">Экзамен</button>
+<button onclick="setMode('mistakes')">Ошибки</button>
+</div>
 
-        <br>
+<div class="card">
+<h2 id="modeTitle"></h2>
+<div id="question"></div>
+<div id="interaction"></div>
+<div id="result"></div>
 
-        <button onclick="checkAnswer()">Проверить</button>
-        <button onclick="nextFormula()">Следующая</button>
+<button onclick="check()">Проверить</button>
+<button onclick="next()">Следующая</button>
+</div>
 
-        <div class="result" id="result"></div>
+<div class="card">
+<h3>Прогресс</h3>
+<div id="progress"></div>
+<div class="stats" id="stats"></div>
+</div>
 
-        <div class="stats">
-            <div id="progress"></div>
-            <div id="score"></div>
-        </div>
-    </div>
 </div>
 
 <script>
-const formulas = [
-{
-name: "Перемещение вдоль оси",
-formula: "S = \\Delta x = x - x_0"
-},
-{
-name: "Скорость",
-formula: "V = \\frac{\\Delta x}{\\Delta t}"
-},
-{
-name: "Ускорение",
-formula: "a = \\frac{\\Delta V}{\\Delta t}"
-},
-{
-name: "Равномерное движение",
-formula: "x = x_0 + Vt"
-},
-{
-name: "Равнопеременное движение",
-formula: "x = x_0 + V_0t + \\frac{at^2}{2}"
-},
-{
-name: "Уравнение скорости",
-formula: "V = V_0 + at"
-},
-{
-name: "Средняя скорость",
-formula: "V_{cp} = \\frac{S}{t}"
-},
-{
-name: "Период обращения",
-formula: "T = \\frac{t}{N}"
-},
-{
-name: "Частота",
-formula: "\\nu = \\frac{1}{T}"
-},
-{
-name: "Длина окружности",
-formula: "S = 2\\pi R"
-},
-{
-name: "Линейная скорость",
-formula: "V = \\frac{2\\pi R}{T}"
-},
-{
-name: "Угловая скорость",
-formula: "\\omega = \\frac{2\\pi}{T}"
-},
-{
-name: "Центростремительное ускорение",
-formula: "a_c = \\frac{V^2}{R}"
-}
+const formulas=[
+{name:"Перемещение вдоль оси",formula:"S=\\Delta x=x-x_0"},
+{name:"Скорость",formula:"V=\\frac{\\Delta x}{\\Delta t}"},
+{name:"Ускорение",formula:"a=\\frac{\\Delta V}{\\Delta t}"},
+{name:"Равномерное движение",formula:"x=x_0+Vt"},
+{name:"Равнопеременное движение",formula:"x=x_0+V_0t+\\frac{at^2}{2}"},
+{name:"Уравнение скорости",formula:"V=V_0+at"},
+{name:"Средняя скорость",formula:"V=\\frac{S}{t}"},
+{name:"Период обращения",formula:"T=\\frac{t}{N}"},
+{name:"Частота",formula:"\\nu=\\frac1T"},
+{name:"Длина окружности",formula:"S=2\\pi R"},
+{name:"Линейная скорость",formula:"V=\\frac{2\\pi R}{T}"},
+{name:"Угловая скорость",formula:"\\omega=\\frac{2\\pi}{T}"},
+{name:"Центростремительное ускорение",formula:"a_c=\\frac{V^2}{R}"}
 ];
 
-let current = 0;
-let correct = 0;
-let total = 0;
+let mode="name";
+let current=0;
+let selected=[];
+let examCount=0;
 
-function renderFormula() {
-    document.getElementById("formula").innerHTML =
-        "$$" + formulas[current].formula + "$$";
+let stats=JSON.parse(localStorage.getItem("physicsStats"))||{
+correct:0,
+total:0,
+mistakes:[]
+};
 
-    document.getElementById("answer").value = "";
-    document.getElementById("result").innerText = "";
-
-    MathJax.typeset();
-    updateStats();
+function save(){
+localStorage.setItem("physicsStats",JSON.stringify(stats));
 }
 
-function normalize(str) {
-    return str.toLowerCase().replace(/\s+/g, "").trim();
+function normalize(s){
+return s.toLowerCase().replace(/\s+/g,'').trim();
 }
 
-function checkAnswer() {
-    const input = document.getElementById("answer").value;
-
-    total++;
-
-    if (normalize(input) === normalize(formulas[current].name)) {
-        correct++;
-        document.getElementById("result").innerText = "✅ Верно";
-    } else {
-        document.getElementById("result").innerText =
-            "❌ Неверно. Правильный ответ: " + formulas[current].name;
-    }
-
-    updateStats();
+function setMode(m){
+mode=m;
+current=0;
+render();
 }
 
-function nextFormula() {
-    current = (current + 1) % formulas.length;
-    renderFormula();
+function render(){
+const f=getCurrent();
+document.getElementById("result").innerHTML="";
+document.getElementById("modeTitle").innerText=modeName();
+
+if(mode==="name"){
+questionFormula(f.formula);
+inputBox();
 }
 
-function updateStats() {
-    document.getElementById("progress").innerText =
-        "Формула " + (current + 1) + " из " + formulas.length;
-
-    document.getElementById("score").innerText =
-        "Правильных ответов: " + correct + " / " + total;
+if(mode==="build"){
+questionText(f.name);
+buildBlocks(f.formula);
 }
 
-renderFormula();
+if(mode==="missing"){
+missingMode(f);
+}
+
+if(mode==="exam"){
+questionFormula(f.formula);
+inputBox();
+}
+
+if(mode==="mistakes"){
+questionFormula(f.formula);
+inputBox();
+}
+
+updateProgress();
+MathJax.typeset();
+}
+
+function getCurrent(){
+if(mode==="mistakes"){
+if(stats.mistakes.length===0)return formulas[0];
+return formulas.find(x=>x.name===stats.mistakes[current%stats.mistakes.length]);
+}
+return formulas[current%formulas.length];
+}
+
+function modeName(){
+return {
+name:"Формула → Название",
+build:"Собери формулу",
+missing:"Допиши формулу",
+exam:"Экзамен",
+mistakes:"Режим ошибок"
+}[mode];
+}
+
+function questionFormula(formula){
+document.getElementById("question").innerHTML="$$"+formula+"$$";
+}
+
+function questionText(text){
+document.getElementById("question").innerHTML="<h3>"+text+"</h3>";
+}
+
+function inputBox(){
+document.getElementById("interaction").innerHTML=
+'<input id="answer">';
+}
+
+function buildBlocks(formula){
+selected=[];
+const tokens=formula.match(/[A-Za-z0-9_\\^{}πΔων+=/-]+/g)||[];
+let html='<div id="buildArea"></div><div>';
+tokens.sort(()=>Math.random()-0.5).forEach(t=>{
+html+=`<span class="token" onclick="pick('${t}')">${t}</span>`;
+});
+html+='</div>';
+document.getElementById("interaction").innerHTML=html;
+}
+
+function pick(t){
+selected.push(t);
+document.getElementById("buildArea").innerHTML=selected.join(" ");
+}
+
+function missingMode(f){
+let chars=f.formula.split('');
+let index=Math.floor(Math.random()*chars.length);
+let hidden=chars[index];
+chars[index]='__';
+
+document.getElementById("question").innerHTML="$$"+chars.join('')+"$$";
+document.getElementById("interaction").innerHTML=
+'<input id="answer">';
+window.missingAnswer=hidden;
+}
+
+function check(){
+const f=getCurrent();
+let ok=false;
+
+if(mode==="name"||mode==="exam"||mode==="mistakes"){
+ok=normalize(answer.value)===normalize(f.name);
+}
+
+if(mode==="build"){
+ok=normalize(selected.join(''))===normalize(f.formula);
+}
+
+if(mode==="missing"){
+ok=normalize(answer.value)===normalize(window.missingAnswer);
+}
+
+stats.total++;
+
+if(ok){
+stats.correct++;
+result.innerHTML="✅ Верно";
+}else{
+result.innerHTML="❌ Ошибка";
+if(!stats.mistakes.includes(f.name)){
+stats.mistakes.push(f.name);
+}
+}
+
+save();
+updateProgress();
+}
+
+function next(){
+current++;
+if(mode==="exam"){
+examCount++;
+if(examCount>=10){
+alert("Экзамен завершён");
+examCount=0;
+}
+}
+render();
+}
+
+function updateProgress(){
+progress.innerHTML=`Правильных: ${stats.correct}/${stats.total}`;
+statsDiv();
+}
+
+function statsDiv(){
+document.getElementById("stats").innerHTML=
+`Ошибок: ${stats.mistakes.length}<br>
+Точность: ${
+stats.total?Math.round(stats.correct/stats.total*100):0
+}%`;
+}
+
+render();
 </script>
 
 </body>
