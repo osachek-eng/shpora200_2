@@ -1,0 +1,206 @@
+﻿```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тренажёр формул ЕГЭ по физике</title>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #fafafa;
+    margin: 0;
+    padding: 40px;
+    color: #111;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+.card {
+    background: white;
+    border-radius: 18px;
+    padding: 30px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+
+h1 {
+    font-size: 32px;
+}
+
+.formula {
+    font-size: 28px;
+    margin: 30px 0;
+}
+
+input {
+    width: 100%;
+    padding: 16px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    font-size: 16px;
+}
+
+button {
+    margin-top: 16px;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 12px;
+    background: black;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+.result {
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+.stats {
+    margin-top: 30px;
+    color: #666;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h1>Тренажёр формул ЕГЭ по физике</h1>
+        <p>Раздел: Кинематика</p>
+
+        <div class="formula" id="formula"></div>
+
+        <input id="answer" placeholder="Введите название формулы">
+
+        <br>
+
+        <button onclick="checkAnswer()">Проверить</button>
+        <button onclick="nextFormula()">Следующая</button>
+
+        <div class="result" id="result"></div>
+
+        <div class="stats">
+            <div id="progress"></div>
+            <div id="score"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const formulas = [
+{
+name: "Перемещение вдоль оси",
+formula: "S = \\Delta x = x - x_0"
+},
+{
+name: "Скорость",
+formula: "V = \\frac{\\Delta x}{\\Delta t}"
+},
+{
+name: "Ускорение",
+formula: "a = \\frac{\\Delta V}{\\Delta t}"
+},
+{
+name: "Равномерное движение",
+formula: "x = x_0 + Vt"
+},
+{
+name: "Равнопеременное движение",
+formula: "x = x_0 + V_0t + \\frac{at^2}{2}"
+},
+{
+name: "Уравнение скорости",
+formula: "V = V_0 + at"
+},
+{
+name: "Средняя скорость",
+formula: "V_{cp} = \\frac{S}{t}"
+},
+{
+name: "Период обращения",
+formula: "T = \\frac{t}{N}"
+},
+{
+name: "Частота",
+formula: "\\nu = \\frac{1}{T}"
+},
+{
+name: "Длина окружности",
+formula: "S = 2\\pi R"
+},
+{
+name: "Линейная скорость",
+formula: "V = \\frac{2\\pi R}{T}"
+},
+{
+name: "Угловая скорость",
+formula: "\\omega = \\frac{2\\pi}{T}"
+},
+{
+name: "Центростремительное ускорение",
+formula: "a_c = \\frac{V^2}{R}"
+}
+];
+
+let current = 0;
+let correct = 0;
+let total = 0;
+
+function renderFormula() {
+    document.getElementById("formula").innerHTML =
+        "$$" + formulas[current].formula + "$$";
+
+    document.getElementById("answer").value = "";
+    document.getElementById("result").innerText = "";
+
+    MathJax.typeset();
+    updateStats();
+}
+
+function normalize(str) {
+    return str.toLowerCase().replace(/\s+/g, "").trim();
+}
+
+function checkAnswer() {
+    const input = document.getElementById("answer").value;
+
+    total++;
+
+    if (normalize(input) === normalize(formulas[current].name)) {
+        correct++;
+        document.getElementById("result").innerText = "✅ Верно";
+    } else {
+        document.getElementById("result").innerText =
+            "❌ Неверно. Правильный ответ: " + formulas[current].name;
+    }
+
+    updateStats();
+}
+
+function nextFormula() {
+    current = (current + 1) % formulas.length;
+    renderFormula();
+}
+
+function updateStats() {
+    document.getElementById("progress").innerText =
+        "Формула " + (current + 1) + " из " + formulas.length;
+
+    document.getElementById("score").innerText =
+        "Правильных ответов: " + correct + " / " + total;
+}
+
+renderFormula();
+</script>
+
+</body>
+</html>
+```
